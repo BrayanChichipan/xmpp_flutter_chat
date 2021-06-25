@@ -8,8 +8,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
-  var connection;
-  var messageHandler;
+  xmpp.Connection connection;
+  xmpp.MessageHandler messageHandler;
 
   @override
   void initState() {
@@ -25,10 +25,12 @@ class _HomePageState extends State<HomePage> {
       print(state);
 
     });
-    messageHandler.messagesStream.listen((event) {
-      print(event);
+    messageHandler.messagesStream.listen((xmpp.MessageStanza message) {
+      print('este es el evento');
+      print(message.body);
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -47,5 +49,14 @@ class _HomePageState extends State<HomePage> {
         },
       ),
     );
+  }
+}
+
+class ExampleMessagesListener implements xmpp.MessagesListener {
+  @override
+  void onNewMessage(xmpp.MessageStanza message) {
+    if (message.body != null) {
+      print('New Message from {color.blue}${message.fromJid.userAtDomain}{color.end} message: {color.red}${message.body}{color.end}');
+    }
   }
 }
