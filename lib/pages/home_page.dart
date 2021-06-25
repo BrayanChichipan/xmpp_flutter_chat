@@ -9,6 +9,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
 
   var connection;
+  var messageHandler;
 
   @override
   void initState() {
@@ -18,14 +19,15 @@ class _HomePageState extends State<HomePage> {
     var account = xmpp.XmppAccountSettings('flutter_test1@jabjab.de', jid.local, jid.domain, '1q2w3e4r5t', 5222, resource: 'xmppstone');
     connection  = xmpp.Connection(account);
     connection.connect();
-    var messageHandler = xmpp.MessageHandler.getInstance(connection);
+    messageHandler = xmpp.MessageHandler.getInstance(connection);
     connection.connectionStateStream.listen((xmpp.XmppConnectionState state){
     
       print(state);
 
     });
-    xmpp.Connection.instances;
-
+    messageHandler.messagesStream.listen((event) {
+      print(event);
+    });
   }
 
   @override
@@ -40,7 +42,8 @@ class _HomePageState extends State<HomePage> {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.charging_station_rounded),
         onPressed: (){
-          connection.reconnect();
+          final jid = xmpp.Jid.fromFullJid('flutter_test1@jabjab.de');
+          messageHandler.sendMessage(jid, 'hola flutter_test1');
         },
       ),
     );
