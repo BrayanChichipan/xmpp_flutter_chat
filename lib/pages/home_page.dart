@@ -1,22 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_xmpp/pages/usuario_model.dart';
 import 'package:xmpp_stone/xmpp_stone.dart' as xmpp;
 
 class HomePage extends StatefulWidget {
+
+
   @override
   _HomePageState createState() => _HomePageState();
 }
-
 class _HomePageState extends State<HomePage> {
 
   xmpp.Connection connection;
   xmpp.MessageHandler messageHandler;
+  final usuario = Usuario.getUsuario;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    var jid = xmpp.Jid.fromFullJid('flutter_test1@jabjab.de');
-    var account = xmpp.XmppAccountSettings('flutter_test1@jabjab.de', jid.local, jid.domain, '1q2w3e4r5t', 5222, resource: 'xmppstone');
+    var jid = xmpp.Jid.fromFullJid(usuario.jid);
+    var account = xmpp.XmppAccountSettings(usuario.jid, jid.local, jid.domain, usuario.password, 5222, resource: 'xmppstone');
     connection  = xmpp.Connection(account);
     connection.connect();
     messageHandler = xmpp.MessageHandler.getInstance(connection);
@@ -49,14 +52,5 @@ class _HomePageState extends State<HomePage> {
         },
       ),
     );
-  }
-}
-
-class ExampleMessagesListener implements xmpp.MessagesListener {
-  @override
-  void onNewMessage(xmpp.MessageStanza message) {
-    if (message.body != null) {
-      print('New Message from {color.blue}${message.fromJid.userAtDomain}{color.end} message: {color.red}${message.body}{color.end}');
-    }
   }
 }
