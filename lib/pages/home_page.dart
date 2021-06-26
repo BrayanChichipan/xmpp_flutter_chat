@@ -10,46 +10,64 @@ class HomePage extends StatefulWidget {
 }
 class _HomePageState extends State<HomePage> {
 
-  xmpp.Connection connection;
-  xmpp.MessageHandler messageHandler;
-  final usuario = Usuario.getUsuario;
+  xmpp.Connection _connection;
+  xmpp.MessageHandler _messageHandler;
+
+  final _usuario = Usuario.getUsuario;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    var jid = xmpp.Jid.fromFullJid(usuario.jid);
-    var account = xmpp.XmppAccountSettings(usuario.jid, jid.local, jid.domain, usuario.password, 5222, resource: 'xmppstone');
-    connection  = xmpp.Connection(account);
-    connection.connect();
-    messageHandler = xmpp.MessageHandler.getInstance(connection);
-    connection.connectionStateStream.listen((xmpp.XmppConnectionState state){
+    var jid = xmpp.Jid.fromFullJid(_usuario.jid);
+    var account = xmpp.XmppAccountSettings(_usuario.jid, jid.local, jid.domain, _usuario.password, 5222, resource: 'xmppstone');
+    _connection  = xmpp.Connection(account);
+    _connection.connect();
+
+    _messageHandler = xmpp.MessageHandler.getInstance(_connection);
+    
+    _connection.connectionStateStream.listen((xmpp.XmppConnectionState state){
     
       print(state);
 
     });
-    messageHandler.messagesStream.listen((xmpp.MessageStanza message) {
+    _messageHandler.messagesStream.listen((xmpp.MessageStanza message) {
       print('este es el evento');
       print(message.body);
     });
-  }
 
+    xmpp.ChatManager.getInstance(_connection).chatListStream.listen((List<xmpp.Chat> chats) {
+
+      chats.forEach((chat) { 
+        print('tienes un mensaje de ${chat.jid.local}');
+      });
+
+    });
+    
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Home'),
+        title: Text('Contactos'),
       ),
       body: Center(
-        child: Text('home'),
+        child: ListView.builder(
+          itemCount: 3,
+          itemBuilder: (ctx,i){
+            return ListTile(
+              title: Text('mensaje'),
+            );
+          }
+        )
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.charging_station_rounded),
         onPressed: (){
           final jid = xmpp.Jid.fromFullJid('flutter_test1@jabjab.de');
-          messageHandler.sendMessage(jid, 'hola flutter_test1');
-        },
+          _messageHandler.sendMessage(jid, 'hola flutter_test1 pa mi mismo');
+        }
       ),
     );
   }
