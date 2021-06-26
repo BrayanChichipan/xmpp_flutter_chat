@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_xmpp/pages/chat_page.dart';
 import 'package:flutter_chat_xmpp/pages/home_page.dart';
 import 'package:flutter_chat_xmpp/pages/login_page.dart';
  

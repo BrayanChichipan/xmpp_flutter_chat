@@ -43,10 +43,11 @@ class _ChatPageState extends State<ChatPage> {
     _messageHandler = xmpp.MessageHandler.getInstance(_connection);
 
      subs = _messageHandler.messagesStream.listen((xmpp.MessageStanza message) {
-      print(message.thread);
-      setState(() {
-      _messages.insert(0,MessageChat(jid: message.fromJid.fullJid,text: message.body));
-      });
+      if( message.fromJid.fullJid == this.jidDest ){
+        setState(() {
+        _messages.insert(0,MessageChat(jid: message.fromJid.fullJid,text: message.body));
+        });
+      }
     });
   }
 

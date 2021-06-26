@@ -12,9 +12,12 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
 
   xmpp.Connection _connection;
-  xmpp.MessageHandler _messageHandler;
+  var subsChat;
+  var subsState;
 
   final _usuario = Usuario.getUsuario;
+
+  List<xmpp.Chat> _chats = [];
 
   @override
   void initState() {
@@ -25,46 +28,60 @@ class _HomePageState extends State<HomePage> {
     _connection  = xmpp.Connection(account);
     _connection.connect();
 
-    // _messageHandler = xmpp.MessageHandler.getInstance(_connection);
-    
-    _connection.connectionStateStream.listen((xmpp.XmppConnectionState state){
+    subsState = _connection.connectionStateStream.listen((xmpp.XmppConnectionState state){
     
       print(state);
 
     });
-    // _messageHandler.messagesStream.listen((xmpp.MessageStanza message) {
-    //   print('este es el evento');
-    //   print(message.body);
-    // });
+    
 
-    xmpp.ChatManager.getInstance(_connection).chatListStream.listen((List<xmpp.Chat> chats) {
+    subsChat = xmpp.ChatManager.getInstance(_connection).chatListStream.listen((List<xmpp.Chat> chats) {
 
       chats.forEach((chat) { 
         print('tienes un mensaje de ${chat.jid.local}');
+        setState(() {
+          _chats.insert(0, chat);
+        });
       });
 
     });
-    
+  }
+
+  @override
+  void dispose() {
+    subsChat.cancel();
+    subsState.cancel();
+    super.dispose();
+
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Contactos'),
+        title: Text('Chats'),
       ),
       body: Center(
         child: ListView.builder(
-          itemCount: 3,
+          itemCount: _chats.length,
           itemBuilder: (ctx,i){
             return ListTile(
-              title: Text('mensaje'),
+              title: Text(_chats[i].messages[0].messageStanza.body),
+              subtitle: Text(_chats[i].jid.fullJid),
+              leading: Icon(Icons.mark_email_unread),
+              onTap: (){
+                Navigator.push(context, 
+                  MaterialPageRoute(builder: (BuildContext context) => 
+                    ChatPage(jidDest: _chats[i].jid.fullJid, connection: _connection,)
+                  )
+                );
+              },
             );
-          }
+          },
         )
       ),
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.send),
+        child: Icon(Icons.add),
         onPressed: (){
           showDialog(
             context: context,
