@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_xmpp/pages/chat_page.dart';
 import 'package:flutter_chat_xmpp/pages/usuario_model.dart';
 import 'package:xmpp_stone/xmpp_stone.dart' as xmpp;
 
@@ -24,17 +25,17 @@ class _HomePageState extends State<HomePage> {
     _connection  = xmpp.Connection(account);
     _connection.connect();
 
-    _messageHandler = xmpp.MessageHandler.getInstance(_connection);
+    // _messageHandler = xmpp.MessageHandler.getInstance(_connection);
     
     _connection.connectionStateStream.listen((xmpp.XmppConnectionState state){
     
       print(state);
 
     });
-    _messageHandler.messagesStream.listen((xmpp.MessageStanza message) {
-      print('este es el evento');
-      print(message.body);
-    });
+    // _messageHandler.messagesStream.listen((xmpp.MessageStanza message) {
+    //   print('este es el evento');
+    //   print(message.body);
+    // });
 
     xmpp.ChatManager.getInstance(_connection).chatListStream.listen((List<xmpp.Chat> chats) {
 
@@ -63,10 +64,33 @@ class _HomePageState extends State<HomePage> {
         )
       ),
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.charging_station_rounded),
+        child: Icon(Icons.send),
         onPressed: (){
-          final jid = xmpp.Jid.fromFullJid('flutter_test1@jabjab.de');
-          _messageHandler.sendMessage(jid, 'hola flutter_test1 pa mi mismo');
+          showDialog(
+            context: context,
+            builder:(BuildContext context) => 
+              AlertDialog(
+                content: Container(
+                  height: 100,
+                  width: 100,
+                  child: TextField(
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: InputDecoration(
+                      labelText: 'Ingresa el jid'
+                    ),
+                    onSubmitted: (String jid){
+                        if(jid.trim().length > 7){
+                          Navigator.push(context, 
+                            MaterialPageRoute(builder: (BuildContext context) => 
+                              ChatPage(jidDest: jid, connection: _connection,)
+                            )
+                          );
+                        }
+                    },
+                  ),
+                ),
+              ),
+          );
         }
       ),
     );
