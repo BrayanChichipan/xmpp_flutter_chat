@@ -4,28 +4,22 @@ import 'package:xmpp_stone/xmpp_stone.dart' as xmpp;
 
 class ChatPage extends StatefulWidget {
 
-  String jidDest;
-  xmpp.Connection _connection;
+  xmpp.Chat _chat;
 
-  ChatPage( {@required String jidDest, @required xmpp.Connection connection} ){
-    this.jidDest = jidDest;
-    this._connection = connection;
+  ChatPage( {@required xmpp.Chat chat} ){
+    this._chat = chat;
   }
 
 
   @override
-  _ChatPageState createState() => _ChatPageState(this.jidDest,this._connection);
+  _ChatPageState createState() => _ChatPageState(this._chat);
 }
 
 class _ChatPageState extends State<ChatPage> {
 
-  _ChatPageState(this.jidDest,this._connection);
+  _ChatPageState(this._chat);
 
-  xmpp.Jid xjidDes;
-  String jidDest;
-  xmpp.Connection _connection;
-  
-  xmpp.MessageHandler _messageHandler;
+  xmpp.Chat _chat;
 
   List<MessageChat> _messages = [];
 
@@ -38,16 +32,17 @@ class _ChatPageState extends State<ChatPage> {
     // TODO: implement initState
     super.initState();
 
-    xjidDes = xmpp.Jid.fromFullJid(jidDest);
+    _chat.messages.forEach((message) { 
+      _messages.insert(0, MessageChat(jid:message.from.userAtDomain,text: message.text,));
+    });
 
-    _messageHandler = xmpp.MessageHandler.getInstance(_connection);
-
-     subs = _messageHandler.messagesStream.listen((xmpp.MessageStanza message) {
-      if( message.fromJid.fullJid == this.jidDest ){
-        setState(() {
-        _messages.insert(0,MessageChat(jid: message.fromJid.fullJid,text: message.body));
-        });
-      }
+     subs = _chat.newMessageStream.listen((xmpp.Message message) {
+       print(message.from.userAtDomain);
+       if(message.from.userAtDomain != Usuario.getUsuario.jid){
+          setState(() {
+            _messages.insert(0,MessageChat(jid: message.from.userAtDomain,text: message.text));
+          });
+       }
     });
   }
 
@@ -63,7 +58,7 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(this.jidDest),
+        title: Text(_chat.jid.fullJid),
       ),
       body: Container(
         color: Colors.black12,
@@ -101,7 +96,7 @@ class _ChatPageState extends State<ChatPage> {
 
     if(_messageController.text.length > 0){
 
-      _messageHandler.sendMessage(xjidDes,_messageController.text);
+      _chat.sendMessage(_messageController.text);
       _messages.insert(0,MessageChat(jid:Usuario.getUsuario.jid,text:_messageController.text));
       setState(() {
         _messageController.text = '';

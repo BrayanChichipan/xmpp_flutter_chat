@@ -19,6 +19,8 @@ class _HomePageState extends State<HomePage> {
 
   List<xmpp.Chat> _chats = [];
 
+  xmpp.ChatManager _chatManager;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -33,19 +35,18 @@ class _HomePageState extends State<HomePage> {
       print(state);
 
     });
-    
 
-    subsChat = xmpp.ChatManager.getInstance(_connection).chatListStream.listen((List<xmpp.Chat> chats) {
+    _chatManager = xmpp.ChatManager.getInstance(_connection);
 
-      chats.forEach((chat) { 
-        print('tienes un mensaje de ${chat.jid.local}');
-        setState(() {
-          _chats.insert(0, chat);
-        });
-      });
+    subsChat = _chatManager.chatListStream.listen((List<xmpp.Chat> chats) {
+
+          setState(() {
+            _chats.insert(0, chats.last);
+          });
 
     });
   }
+
 
   @override
   void dispose() {
@@ -66,13 +67,13 @@ class _HomePageState extends State<HomePage> {
           itemCount: _chats.length,
           itemBuilder: (ctx,i){
             return ListTile(
-              title: Text(_chats[i].messages[0].messageStanza.body),
+              title: Text(_chats[i].messages.last.text),
               subtitle: Text(_chats[i].jid.fullJid),
               leading: Icon(Icons.mark_email_unread),
               onTap: (){
                 Navigator.push(context, 
                   MaterialPageRoute(builder: (BuildContext context) => 
-                    ChatPage(jidDest: _chats[i].jid.fullJid, connection: _connection,)
+                    ChatPage(chat: _chats[i])
                   )
                 );
               },
@@ -97,11 +98,16 @@ class _HomePageState extends State<HomePage> {
                     ),
                     onSubmitted: (String jid){
                         if(jid.trim().length > 7){
+                          
+                          final xjid = xmpp.Jid.fromFullJid(jid);
+                          final xmpp.Chat newChat = _chatManager.getChat(xjid);
+
                           Navigator.push(context, 
                             MaterialPageRoute(builder: (BuildContext context) => 
-                              ChatPage(jidDest: jid, connection: _connection,)
+                              ChatPage(chat: newChat)
                             )
                           );
+                          
                         }
                     },
                   ),
