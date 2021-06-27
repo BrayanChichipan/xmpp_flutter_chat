@@ -37,12 +37,12 @@ class _ChatPageState extends State<ChatPage> {
     });
 
      subs = _chat.newMessageStream.listen((xmpp.Message message) {
-       print(message.from.userAtDomain);
        if(message.from.userAtDomain != Usuario.getUsuario.jid){
           setState(() {
             _messages.insert(0,MessageChat(jid: message.from.userAtDomain,text: message.text));
           });
        }
+
     });
   }
 

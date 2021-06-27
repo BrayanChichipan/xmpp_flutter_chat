@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_xmpp/pages/home_page.dart';
+import 'package:xmpp_stone/xmpp_stone.dart' as xmpp;
+
+
 import 'package:flutter_chat_xmpp/pages/usuario_model.dart';
 
 class LoginPage extends StatelessWidget {
@@ -29,6 +33,7 @@ class FormLogin extends StatelessWidget {
  final formKey = GlobalKey<FormState>();
  final jidController = new TextEditingController();
  final passController = new TextEditingController();
+
 
   @override
   Widget build(BuildContext context) {
@@ -72,10 +77,25 @@ class FormLogin extends StatelessWidget {
                 if(!formKey.currentState.validate()) return ;
 
                 formKey.currentState.save();
-                new Usuario(jid: jidController.text,password: passController.text);
-                Navigator.pushReplacementNamed(context, 'home');
+
+                final jid = xmpp.Jid.fromFullJid(jidController.text);
+                final account = xmpp.XmppAccountSettings(jid.userAtDomain, jid.local, jid.domain, passController.text, 5222, resource: 'xmppstone');
+                final _connection  = xmpp.Connection(account);
+
+                _connection.connect();
+
+                final subsState = _connection.connectionStateStream.listen((xmpp.XmppConnectionState state){
+    
+                 if(state == xmpp.XmppConnectionState.Ready){
+                    Navigator.pushReplacement(context, 
+                      MaterialPageRoute(builder: (BuildContext context) => 
+                        HomePage(connection: _connection))
+                    );
+                 }
+
+                });
             },
-          )
+          ),
         ],
       ),
     );

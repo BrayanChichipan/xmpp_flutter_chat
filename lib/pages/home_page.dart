@@ -5,46 +5,41 @@ import 'package:xmpp_stone/xmpp_stone.dart' as xmpp;
 
 class HomePage extends StatefulWidget {
 
+  xmpp.Connection _connection;
+
+  HomePage({@required xmpp.Connection connection}){
+    this._connection = connection;
+  } 
 
   @override
-  _HomePageState createState() => _HomePageState();
+  _HomePageState createState() => _HomePageState(_connection);
 }
 class _HomePageState extends State<HomePage> {
 
   xmpp.Connection _connection;
+  xmpp.ChatManager _chatManager;
+
+  _HomePageState(this._connection);
+
   var subsChat;
   var subsState;
-
-  final _usuario = Usuario.getUsuario;
+  var subsMessages;
 
   List<xmpp.Chat> _chats = [];
 
-  xmpp.ChatManager _chatManager;
-
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    var jid = xmpp.Jid.fromFullJid(_usuario.jid);
-    var account = xmpp.XmppAccountSettings(_usuario.jid, jid.local, jid.domain, _usuario.password, 5222, resource: 'xmppstone');
-    _connection  = xmpp.Connection(account);
-    _connection.connect();
-
-    subsState = _connection.connectionStateStream.listen((xmpp.XmppConnectionState state){
+    new Usuario(jid:_connection.account.fullJid.userAtDomain,password:_connection.account.password);
+    subsMessages = xmpp.MessageHandler.getInstance(_connection).messagesStream
+      .listen((event) => setState((){}));
     
-      print(state);
-
-    });
-
     _chatManager = xmpp.ChatManager.getInstance(_connection);
-
     subsChat = _chatManager.chatListStream.listen((List<xmpp.Chat> chats) {
-
-          setState(() {
-            _chats.insert(0, chats.last);
-          });
-
+                  _chats.insert(0, chats.last);
+                  if(chats.last.messages.isNotEmpty) setState(() {});
     });
+
   }
 
 
@@ -52,6 +47,7 @@ class _HomePageState extends State<HomePage> {
   void dispose() {
     subsChat.cancel();
     subsState.cancel();
+    subsMessages.cancel();
     super.dispose();
 
   }
