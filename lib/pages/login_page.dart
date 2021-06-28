@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_xmpp/pages/home_page.dart';
 import 'package:xmpp_stone/xmpp_stone.dart' as xmpp;
 
-
-import 'package:flutter_chat_xmpp/pages/usuario_model.dart';
-
 class LoginPage extends StatelessWidget {
 
   @override
@@ -28,12 +25,28 @@ class LoginPage extends StatelessWidget {
   }
 }
 
-class FormLogin extends StatelessWidget {
+class FormLogin extends StatefulWidget {
 
- final formKey = GlobalKey<FormState>();
- final jidController = new TextEditingController();
- final passController = new TextEditingController();
+  @override
+  _FormLoginState createState() => _FormLoginState();
+}
 
+class _FormLoginState extends State<FormLogin> {
+  final formKey = GlobalKey<FormState>();
+
+  final TextEditingController jidController = new TextEditingController();
+
+  final TextEditingController passController = new TextEditingController();
+
+  bool _loading = false;
+  bool _error = false;
+
+  @override
+  void dispose(){
+    jidController?.dispose();
+    passController?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,34 +83,53 @@ class FormLogin extends StatelessWidget {
               return 'verifique este campo';
             },
           ),
+          SizedBox(height: 10,),
+          if(_error) Text('Error con autenticación: verifique sus datos',
+                        style: TextStyle(color: Colors.red, fontWeight: FontWeight.w100, fontSize: 12),
+                        ),
           SizedBox(height: 20,),
-          RaisedButton(
-            child: Text('Login'),
-            onPressed: (){
-                if(!formKey.currentState.validate()) return ;
-
-                formKey.currentState.save();
-
-                final jid = xmpp.Jid.fromFullJid(jidController.text);
-                final account = xmpp.XmppAccountSettings(jid.userAtDomain, jid.local, jid.domain, passController.text, 5222, resource: 'xmppstone');
-                final _connection  = xmpp.Connection(account);
-
-                _connection.connect();
-
-                final subsState = _connection.connectionStateStream.listen((xmpp.XmppConnectionState state){
-    
-                 if(state == xmpp.XmppConnectionState.Ready){
-                    Navigator.pushReplacement(context, 
-                      MaterialPageRoute(builder: (BuildContext context) => 
-                        HomePage(connection: _connection))
-                    );
-                 }
-
-                });
-            },
-          ),
+          _loading
+            ?CircularProgressIndicator()
+            :RaisedButton(
+              child: Text('Login'),
+              color: Colors.blue[100],
+              onPressed: ()=>_handleLogin(context),
+            ),
         ],
       ),
     );
+  }
+
+  _handleLogin(BuildContext context){
+    if(!formKey.currentState.validate()) return ;
+
+    formKey.currentState.save();
+
+    setState(() {
+      _loading = true;
+    });
+
+    final jid = xmpp.Jid.fromFullJid(jidController.text);
+    final account = xmpp.XmppAccountSettings(jid.userAtDomain, jid.local, jid.domain, passController.text, 5222, resource: 'xmppstone');
+    final _connection  = xmpp.Connection(account);
+
+    _connection.connect();
+
+    _connection.connectionStateStream.listen((xmpp.XmppConnectionState state){
+
+    if(state == xmpp.XmppConnectionState.Ready){
+        Navigator.pushReplacement(context, 
+          MaterialPageRoute(builder: (BuildContext context) => 
+            HomePage(connection: _connection))
+        );
+    }else if(state == xmpp.XmppConnectionState.AuthenticationFailure){
+      setState(() {
+      _loading = false;
+      _error = true;
+    });
+      print('verificar datos');
+    }
+
+    });
   }
 }

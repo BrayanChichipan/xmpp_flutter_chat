@@ -18,6 +18,7 @@ class _HomePageState extends State<HomePage> {
 
   xmpp.Connection _connection;
   xmpp.ChatManager _chatManager;
+  xmpp.RosterManager _rosterManager;
 
   _HomePageState(this._connection);
 
@@ -30,30 +31,37 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+
     new Usuario(jid:_connection.account.fullJid.userAtDomain,password:_connection.account.password);
+
     subsMessages = xmpp.MessageHandler.getInstance(_connection).messagesStream
       .listen((event) => setState((){}));
     
     _chatManager = xmpp.ChatManager.getInstance(_connection);
+
     subsChat = _chatManager.chatListStream.listen((List<xmpp.Chat> chats) {
                   _chats.insert(0, chats.last);
                   if(chats.last.messages.isNotEmpty) setState(() {});
     });
-
   }
-
 
   @override
   void dispose() {
     subsChat.cancel();
     subsState.cancel();
     subsMessages.cancel();
+    _connection.close();
     super.dispose();
 
   }
 
   @override
   Widget build(BuildContext context) {
+    // _rosterManager = xmpp.RosterManager.getInstance(_connection);
+    // _rosterManager.getRoster().forEach((buddy) { 
+    //   print(buddy.name);
+    // }); 
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Chats'),
@@ -64,7 +72,7 @@ class _HomePageState extends State<HomePage> {
           itemBuilder: (ctx,i){
             return ListTile(
               title: Text(_chats[i].messages.last.text),
-              subtitle: Text(_chats[i].jid.fullJid),
+              subtitle: Text(_chats[i].jid.local),
               leading: Icon(Icons.mark_email_unread),
               onTap: (){
                 Navigator.push(context, 
@@ -92,20 +100,7 @@ class _HomePageState extends State<HomePage> {
                     decoration: InputDecoration(
                       labelText: 'Ingresa el jid'
                     ),
-                    onSubmitted: (String jid){
-                        if(jid.trim().length > 7){
-                          
-                          final xjid = xmpp.Jid.fromFullJid(jid);
-                          final xmpp.Chat newChat = _chatManager.getChat(xjid);
-
-                          Navigator.push(context, 
-                            MaterialPageRoute(builder: (BuildContext context) => 
-                              ChatPage(chat: newChat)
-                            )
-                          );
-                          
-                        }
-                    },
+                    onSubmitted: _handleSubmit,
                   ),
                 ),
               ),
@@ -114,4 +109,20 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
+  _handleSubmit(String jid){
+    if(jid.trim().length > 7){
+      
+      final xjid = xmpp.Jid.fromFullJid(jid);
+      final xmpp.Chat newChat = _chatManager.getChat(xjid);
+
+      Navigator.push(context, 
+        MaterialPageRoute(builder: (BuildContext context) => 
+          ChatPage(chat: newChat)
+        )
+      );
+      
+    }
+  }
+
 }

@@ -29,7 +29,6 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
 
     _chat.messages.forEach((message) { 
@@ -58,7 +57,7 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_chat.jid.fullJid),
+        title: Text(_chat.jid.local),
       ),
       body: Container(
         color: Colors.black12,
