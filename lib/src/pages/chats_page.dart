@@ -27,6 +27,7 @@ class _ChatsPageState extends State<ChatsPage> {
   void initState() { 
     super.initState();
     _chatManager = xmpp.ChatManager.getInstance(_connection);
+    xmpp.MessageArchiveManager.getInstance(_connection).queryAll();
   }
 
   @override
@@ -45,9 +46,10 @@ class _ChatsPageState extends State<ChatsPage> {
             return ListTile(
               title: Text(_chatManager.chats[i].jid.local),
               subtitle: 
-                (_chatManager.chats[i].messages.length != 0)
+                (_chatManager.chats[i].messages.isNotEmpty)
                   ?Text(_chatManager.chats[i].messages.last.text)
-                  :Text(''),
+                  :Text('')
+              ,
               leading: Icon(Icons.mark_email_unread),
               onTap: (){
                 Navigator.push(context, 
