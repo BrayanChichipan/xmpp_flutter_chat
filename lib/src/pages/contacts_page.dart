@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_xmpp/src/models/usuario_model.dart';
 import 'package:flutter_chat_xmpp/src/pages/chat_page.dart';
 import 'package:xmpp_stone/xmpp_stone.dart' as xmpp;
 
@@ -24,9 +25,8 @@ class _ContactsPageState extends State<ContactsPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
-    super.initState();
     _rosterManager = xmpp.RosterManager.getInstance(_connection);
+    super.initState();
   }
 
   @override
@@ -47,7 +47,7 @@ class _ContactsPageState extends State<ContactsPage> {
                 return ListTile(
                   title: Text(buddys[i].name),
                   subtitle: Text(buddys[i].jid.local),
-                  leading: Icon(Icons.mark_email_unread),
+                  leading: Icon(Icons.contact_mail_sharp),
                   onTap: (){
                     xmpp.Chat newChat = xmpp.ChatManager.getInstance(_connection).getChat(buddys[i].jid);
                     Navigator.push(context, 
@@ -118,8 +118,8 @@ class _ContactsPageState extends State<ContactsPage> {
                       xmpp.Jid jidContact = xmpp.Jid.fromFullJid(jidController.text);
                       xmpp.Buddy contact = xmpp.Buddy(jidContact);
                       contact.name = nombreController.text;
-                      setState(() {});
                       _rosterManager.addRosterItem(contact);
+                      _rosterManager.queryForRoster();
                       Navigator.pop(context);
                     }
                   )

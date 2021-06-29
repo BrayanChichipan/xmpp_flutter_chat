@@ -44,7 +44,10 @@ class _ChatsPageState extends State<ChatsPage> {
           itemBuilder: (ctx,i){
             return ListTile(
               title: Text(_chatManager.chats[i].jid.local),
-              subtitle: Text(_chatManager.chats[i].messages.last.text),
+              subtitle: 
+                (_chatManager.chats[i].messages.length != 0)
+                  ?Text(_chatManager.chats[i].messages.last.text)
+                  :Text(''),
               leading: Icon(Icons.mark_email_unread),
               onTap: (){
                 Navigator.push(context, 
