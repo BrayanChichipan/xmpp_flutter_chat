@@ -27,7 +27,6 @@ class _ChatsPageState extends State<ChatsPage> {
   void initState() { 
     super.initState();
     _chatManager = xmpp.ChatManager.getInstance(_connection);
-    xmpp.MessageArchiveManager.getInstance(_connection).queryAll();
   }
 
   @override

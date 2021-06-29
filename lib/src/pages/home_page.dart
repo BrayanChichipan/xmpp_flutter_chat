@@ -28,6 +28,8 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() { 
     super.initState();
+    xmpp.MessageArchiveManager.getInstance(_connection).queryAll();
+
     _pages.add(ChatsPage(connection: _connection));
     _pages.add(ContactsPage(connection: _connection));
   }
