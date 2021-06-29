@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_xmpp/pages/login_page.dart';
+import 'package:flutter_chat_xmpp/src/pages/login_page.dart';
  
 void main() => runApp(MyApp());
  
@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
       title: 'Material App',
       initialRoute: 'login',
       routes: {
-        'login' : ( BuildContext context ) => LoginPage()
+        'login' : ( BuildContext context ) => LoginPage(),
       },
     );
   }

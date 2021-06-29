@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_xmpp/pages/home_page.dart';
+import 'package:flutter_chat_xmpp/src/models/usuario_model.dart';
+import 'package:flutter_chat_xmpp/src/pages/home_page.dart';
 import 'package:xmpp_stone/xmpp_stone.dart' as xmpp;
 
 class LoginPage extends StatelessWidget {
@@ -118,6 +119,7 @@ class _FormLoginState extends State<FormLogin> {
     _connection.connectionStateStream.listen((xmpp.XmppConnectionState state){
 
     if(state == xmpp.XmppConnectionState.Ready){
+        new Usuario(jid: _connection.account.fullJid.userAtDomain,password: _connection.account.password); 
         Navigator.pushReplacement(context, 
           MaterialPageRoute(builder: (BuildContext context) => 
             HomePage(connection: _connection))

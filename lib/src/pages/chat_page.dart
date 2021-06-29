@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_xmpp/pages/usuario_model.dart';
+import 'package:flutter_chat_xmpp/src/models/usuario_model.dart';
 import 'package:xmpp_stone/xmpp_stone.dart' as xmpp;
 
 class ChatPage extends StatefulWidget {
@@ -96,6 +96,7 @@ class _ChatPageState extends State<ChatPage> {
     if(_messageController.text.length > 0){
 
       _chat.sendMessage(_messageController.text);
+      print(Usuario.getUsuario.jid);
       _messages.insert(0,MessageChat(jid:Usuario.getUsuario.jid,text:_messageController.text));
       setState(() {
         _messageController.text = '';
