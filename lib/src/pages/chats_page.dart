@@ -31,14 +31,20 @@ class _ChatsPageState extends State<ChatsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.grey.shade300,
+        centerTitle: true,
+        title: Text('Chats',style: TextStyle(color: Colors.black)),
+      ),
+      body: StreamBuilder(
         stream: xmpp.MessageHandler.getInstance(_connection).messagesStream,
         builder: (ctx,snap) => ListView.builder(
           itemCount: _chatManager.chats.length,
           itemBuilder: (ctx,i){
             return ListTile(
-              title: Text(_chatManager.chats[i].messages.last.text),
-              subtitle: Text(_chatManager.chats[i].jid.local),
+              title: Text(_chatManager.chats[i].jid.local),
+              subtitle: Text(_chatManager.chats[i].messages.last.text),
               leading: Icon(Icons.mark_email_unread),
               onTap: (){
                 Navigator.push(context, 
@@ -50,6 +56,7 @@ class _ChatsPageState extends State<ChatsPage> {
             );
           },
         ),
+      ),
     );
   }
 }

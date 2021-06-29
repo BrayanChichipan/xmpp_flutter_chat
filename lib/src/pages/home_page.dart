@@ -44,6 +44,8 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
+        selectedItemColor: Colors.green[900],
+        backgroundColor: Colors.grey.shade300,
         currentIndex: _currentIndex, //que elemento esta activo
         onTap: (index) {
           // posicion de boton del navigation
@@ -53,11 +55,11 @@ class _HomePageState extends State<HomePage> {
         },
         items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.map),
+            icon: Icon(Icons.chat,color: Colors.green[300],),
             label: 'Chats',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.brightness_5),
+            icon: Icon(Icons.contact_page,color: Colors.green[300],),
             label: 'Contactos',
           ),
         ],

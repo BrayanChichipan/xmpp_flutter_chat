@@ -57,7 +57,9 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_chat.jid.local),
+        backgroundColor: Colors.grey.shade300,
+        centerTitle: true,
+        title: Text(_chat.jid.local,style: TextStyle(color: Colors.black,fontSize: 14)),
       ),
       body: Container(
         color: Colors.black12,
